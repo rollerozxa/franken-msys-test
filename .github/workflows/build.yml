@@ -14,7 +14,7 @@ jobs:
 
       - name: Install deps
         run: |
-          pacman -S mingw-w64-clang-x86_64-{curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2,ntldd}
+          pacman -S --noconfirm mingw-w64-clang-x86_64-{curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2,ntldd,nsis}
 
       - name: Checkout Principia src
         uses: actions/checkout@v4
@@ -28,8 +28,8 @@ jobs:
           cd principia
           mkdir build; cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE="../../toolchain-x86_64-w64-mingw32.cmake" -DCMAKE_EXE_LINKER_FLAGS="-L/clang64/lib" -G Ninja
-          ninja
-          ../../windows_release.sh
+          ninja -j4
+          MINGW_PREFIX=/clang64 ../../windows_release.sh
       
       - name: Upload output as artifact
         uses: actions/upload-artifact@v4
