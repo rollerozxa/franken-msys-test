@@ -1,0 +1,38 @@
+name: build
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/rollerozxa/franken-msys:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          pacman -S mingw-w64-clang-x86_64-{curl-winssl,gtk3,glew,libpng,libjpeg-turbo,freetype,SDL2,ntldd}
+
+      - name: Checkout Principia src
+        uses: actions/checkout@v4
+        with:
+          repository: Bithack/principia
+          path: principia
+          ref: master
+
+      - name: Build
+        run: |
+          cd principia
+          mkdir build; cd build
+          cmake .. -DCMAKE_TOOLCHAIN_FILE="../../toolchain-x86_64-w64-mingw32.cmake" -DCMAKE_EXE_LINKER_FLAGS="-L/clang64/lib" -G Ninja
+          ninja
+          ../../windows_release.sh
+      
+      - name: Upload output as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: principia-setup.exe
+          path: principia/build/principia-setup.exe
