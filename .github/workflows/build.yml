@@ -29,7 +29,7 @@ jobs:
           mkdir build; cd build
           cmake .. -DCMAKE_TOOLCHAIN_FILE="../../toolchain-x86_64-w64-mingw32.cmake" -DCMAKE_EXE_LINKER_FLAGS="-L/clang64/lib" -G Ninja
           ninja -j4
-          MINGW_PREFIX=/clang64 ../../windows_release.sh
+          WINEPREFIX=/tmp/wine MINGW_PREFIX=/clang64 ../../windows_release.sh
       
       - name: Upload output as artifact
         uses: actions/upload-artifact@v4
