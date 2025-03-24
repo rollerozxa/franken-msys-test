@@ -7,8 +7,11 @@ mkdir -p release
 
 cp principia.exe release/
 
+WINE=${MSYSTEM:+}
+WINE=${WINE:-wine}
+
 if [[ -z "${MSYSTEM-}" ]]; then
-	$MINGW_PREFIX/bin/gdk-pixbuf-query-loaders.exe --update-cache
+	$WINE $MINGW_PREFIX/bin/gdk-pixbuf-query-loaders.exe --update-cache
 fi
 
 cd release
@@ -23,7 +26,7 @@ mkdir -p $SCHEMAS_DIR
 cp $MINGW_PREFIX/$SCHEMAS_DIR/{gschema.dtd,gschemas.compiled} $SCHEMAS_DIR/
 
 if [[ -z "${MSYSTEM-}" ]]; then
-	list=$($MINGW_PREFIX/bin/ntldd.exe --search-dir $MINGW_PREFIX/bin -R principia.exe | awk '$3 ~ /^Z:\\/ {gsub(/^Z:/, "", $3); gsub(/\\/, "/", $3); print $3}')
+	list=$($WINE $MINGW_PREFIX/bin/ntldd.exe --search-dir $MINGW_PREFIX/bin -R principia.exe | awk '$3 ~ /^Z:\\/ {gsub(/^Z:/, "", $3); gsub(/\\/, "/", $3); print $3}')
 else
 	list=$(ldd principia.exe | grep $MINGW_PREFIX | sed 's/.* => //' | sed 's/ \(.*\)//')
 fi
@@ -37,4 +40,4 @@ cd ..
 cp ../packaging/principia_install.nsi .
 cp -r ../packaging/installer/ .
 
-$MINGW_PREFIX/bin/makensis.exe principia_install
+$WINE $MINGW_PREFIX/bin/makensis.exe principia_install
